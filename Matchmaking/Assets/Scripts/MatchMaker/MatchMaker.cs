@@ -51,12 +51,12 @@ namespace Assets.Scripts.MatchMaker
 
         public override void OnJoinedRoom()
         {
+            //OnJoinedRoom invoke on local client
         }
 
         public override void OnPlayerEnteredRoom(Player newPlayer)
         {
-            //rewrite
-
+            //OnPlayerEnteredRoom invokes on other clients
             print("Intered room.");
 
             if (PhotonNetwork.CurrentRoom.PlayerCount == _maxPlayersPerRoom)
@@ -70,7 +70,6 @@ namespace Assets.Scripts.MatchMaker
 
         public override void OnRoomListUpdate(List<RoomInfo> roomList)
         {
-
             UpdateCachedRoomList(roomList);
 
             if (_listOfRoomsInfo != null && _listOfRoomsInfo.Count != 0)
