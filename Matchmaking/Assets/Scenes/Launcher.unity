@@ -457,8 +457,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8358a5aef637e6e449c20175eeefba36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxPlayersPerRoom: 4
-  _initialMMR: 725
+  _maxPlayersPerRoom: 2
+  _initialMMR: 700
+  _roomSearchDepth: 5
 --- !u!4 &790270914
 Transform:
   m_ObjectHideFlags: 0

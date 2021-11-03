@@ -14,6 +14,9 @@ namespace Assets.Scripts.MatchMaker
         #region Exposed in Inspector Fields
         [SerializeField] private byte _maxPlayersPerRoom;
         [SerializeField] private int _initialMMR;
+
+        [Tooltip("How many times we change MMR limitations.")]
+        [SerializeField] private int _roomSearchDepth;
         #endregion
 
         #region Private Fields
@@ -49,11 +52,18 @@ namespace Assets.Scripts.MatchMaker
         public override void OnJoinedRoom()
         {
             print($"Joined Room");
+            print($"Players in room: {PhotonNetwork.CurrentRoom.PlayerCount}");
+
+            //load level for all in room
+
+            if (PhotonNetwork.CurrentRoom.PlayerCount == _maxPlayersPerRoom)
+            {
+                PhotonNetwork.LoadLevel(UtilsConst.Battle);
+            }
         }
 
         public override void OnRoomListUpdate(List<RoomInfo> roomList)
         {
-            print("RoomListUpdated");
 
             UpdateCachedRoomList(roomList);
 
@@ -63,31 +73,41 @@ namespace Assets.Scripts.MatchMaker
                 CreateRoomWithCustomOptions(_maxPlayersPerRoom, _customRoomProperties);
         }
 
+        public override void OnJoinRandomFailed(short returnCode, string message) => CreateRoomWithCustomOptions(_maxPlayersPerRoom, _customRoomProperties);
+
         #endregion
 
         #region Private Methods
         private void MatchPlayers(PlayerSettings playerSettings, List<RoomInfo> rooms)
         {
-            print("Matchmaking in process");
 
-            for (int i = rooms.Count - 1; i >= 0; i--)
+            for (int t = _roomSearchDepth - 1; t >= 0; t--)
             {
-                var room = rooms[i];
+                for (int i = rooms.Count - 1; i >= 0; i--)
+                {
+                    var room = rooms[i];
 
-                if (CheckRoomConnectionConditions(room, _settings))
-                {
-                    PhotonNetwork.JoinRoom(room.Name);
-                    return;
+                    if (CheckRoomConnectionConditions(room, playerSettings))
+                    {
+                        playerSettings.ResetChangedMMR();
+                        PhotonNetwork.JoinRoom(room.Name);
+                        return;
+                    }
                 }
-                else
-                {
-                    print("False Conditions");
-                }
+
+                playerSettings.ExpandMMRBoundaries(UtilsConst.Difference);
             }
+
+            JoinRandomRoom();
         }
 
         private void UpdateCachedRoomList(List<RoomInfo> roomList)
         {
+            //rewrite
+            //method return List<RoomInfo>
+            //research how room list behaves
+            //when left or enter room
+
             _listOfRoomsInfo = roomList;
 
             for (int i = roomList.Count - 1; i >= 0; i--)
@@ -117,14 +137,26 @@ namespace Assets.Scripts.MatchMaker
             PhotonNetwork.CreateRoom(null, roomOptions);
         }
 
+        private void JoinRandomRoom() => PhotonNetwork.JoinRandomRoom();
+
         private bool CheckRoomConnectionConditions(RoomInfo info, PlayerSettings playerSettings)
         {
-            if (info.CustomProperties == null || info.CustomProperties.Count == 0) return false;
-            if (!info.CustomProperties.ContainsKey(UtilsConst.LowerBound)) return false;
-            if (!info.CustomProperties.ContainsKey(UtilsConst.UpperBound)) return false;
+            #region Cache
+            var customProperties = info.CustomProperties;
+            var cachedLowerBound = (int)info.CustomProperties[UtilsConst.LowerBound];
+            var cachedUpperBound = (int)info.CustomProperties[UtilsConst.UpperBound];
+            var increasedMMR = playerSettings.IncreasedMMR;
+            var decreasedMMR = playerSettings.DecreasedMMR;
+            #endregion
 
-            return playerSettings.MMR >= (int)info.CustomProperties[UtilsConst.LowerBound]
-                                        && playerSettings.MMR <= (int)info.CustomProperties[UtilsConst.UpperBound];
+            if (customProperties == null || customProperties.Count == 0) return false;
+            if (!customProperties.ContainsKey(UtilsConst.LowerBound)) return false;
+            if (!customProperties.ContainsKey(UtilsConst.UpperBound)) return false;
+
+            return (increasedMMR >= cachedLowerBound
+                                        && increasedMMR <= cachedUpperBound)
+                                        || (decreasedMMR >= cachedLowerBound
+                                        && decreasedMMR <= cachedUpperBound);
         }
         #endregion
     }
