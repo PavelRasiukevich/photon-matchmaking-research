@@ -51,14 +51,20 @@ namespace Assets.Scripts.MatchMaker
 
         public override void OnJoinedRoom()
         {
-            print($"Joined Room");
-            print($"Players in room: {PhotonNetwork.CurrentRoom.PlayerCount}");
+        }
 
-            //load level for all in room
+        public override void OnPlayerEnteredRoom(Player newPlayer)
+        {
+            //rewrite
+
+            print("Intered room.");
 
             if (PhotonNetwork.CurrentRoom.PlayerCount == _maxPlayersPerRoom)
             {
-                PhotonNetwork.LoadLevel(UtilsConst.Battle);
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    PhotonNetwork.LoadLevel(UtilsConst.Battle);
+                }
             }
         }
 
