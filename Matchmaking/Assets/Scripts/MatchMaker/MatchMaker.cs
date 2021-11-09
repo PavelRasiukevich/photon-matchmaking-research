@@ -11,7 +11,6 @@ namespace Assets.Scripts.MatchMaker
 {
     public class MatchMaker : MonoBehaviourPunCallbacks
     {
-       
 
         #region Exposed in Inspector Fields
         [SerializeField] private byte _maxPlayersPerRoom;
@@ -28,9 +27,6 @@ namespace Assets.Scripts.MatchMaker
         #endregion
 
         #region MONOBEH Callbacks
-        private void Update()
-        {
-        }
         #endregion
 
         #region PUN Callbacks
@@ -59,29 +55,33 @@ namespace Assets.Scripts.MatchMaker
 
         public override void OnLeftLobby()
         {
-            print("Lobby left");
+            print("Left Lobby");
+        }
+
+        public override void OnRoomListUpdate(List<RoomInfo> roomList)
+        {
+            RoomListUpdated(roomList);
         }
 
         public override void OnJoinedRoom()
         {
             //OnJoinedRoom invoke on local client
+            print("Joined room.");
         }
 
         public override void OnPlayerEnteredRoom(Player newPlayer)
         {
             //OnPlayerEnteredRoom invokes on other clients
             print("Intered room.");
-
-
-            if (PhotonNetwork.CurrentRoom.PlayerCount == _maxPlayersPerRoom)
-            {
-                PhotonView.Get(this).RPC("RaisePlayersGatheredEvent", RpcTarget.All);
-            }
         }
 
-        public override void OnRoomListUpdate(List<RoomInfo> roomList)
-        {
+        public override void OnJoinRandomFailed(short returnCode, string message) => CreateRoomWithCustomOptions(_maxPlayersPerRoom, _customRoomProperties);
 
+        #endregion
+
+        #region Public Methods
+        private void RoomListUpdated(List<RoomInfo> roomList)
+        {
             UpdateCachedRoomList(roomList);
 
             if (_listOfRoomsInfo != null && _listOfRoomsInfo.Count != 0)
@@ -89,9 +89,6 @@ namespace Assets.Scripts.MatchMaker
             else
                 CreateRoomWithCustomOptions(_maxPlayersPerRoom, _customRoomProperties);
         }
-
-        public override void OnJoinRandomFailed(short returnCode, string message) => CreateRoomWithCustomOptions(_maxPlayersPerRoom, _customRoomProperties);
-
         #endregion
 
         #region Private Methods
@@ -168,7 +165,7 @@ namespace Assets.Scripts.MatchMaker
                                         || (decreasedMMR >= cachedLowerBound
                                         && decreasedMMR <= cachedUpperBound);
         }
-      
+
         #endregion
     }
 }
