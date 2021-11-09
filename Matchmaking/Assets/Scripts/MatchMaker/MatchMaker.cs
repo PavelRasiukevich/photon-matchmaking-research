@@ -3,6 +3,7 @@ using Assets.Scripts.Utils;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ namespace Assets.Scripts.MatchMaker
 {
     public class MatchMaker : MonoBehaviourPunCallbacks
     {
+       
 
         #region Exposed in Inspector Fields
         [SerializeField] private byte _maxPlayersPerRoom;
@@ -22,10 +24,13 @@ namespace Assets.Scripts.MatchMaker
         #region Private Fields
         private PlayerSettings _settings;
         private Hashtable _customRoomProperties;
-        private List<RoomInfo> _listOfRoomsInfo;
+        private Dictionary<string, RoomInfo> _listOfRoomsInfo;
         #endregion
 
         #region MONOBEH Callbacks
+        private void Update()
+        {
+        }
         #endregion
 
         #region PUN Callbacks
@@ -37,16 +42,24 @@ namespace Assets.Scripts.MatchMaker
                 MMR = _initialMMR,
             };
 
-            _customRoomProperties = PhotonNetwork.LocalPlayer.CustomProperties;
-            _customRoomProperties.Add(UtilsConst.LowerBound, _settings.MMR - UtilsConst.Difference);
-            _customRoomProperties.Add(UtilsConst.UpperBound, _settings.MMR + UtilsConst.Difference);
+            _customRoomProperties = new Hashtable
+            {
+                { UtilsConst.LowerBound, _settings.MMR - UtilsConst.Difference },
+                { UtilsConst.UpperBound, _settings.MMR + UtilsConst.Difference }
+            };
 
             PhotonNetwork.JoinLobby();
         }
 
         public override void OnJoinedLobby()
         {
-            print($"Joined Lobby");
+            print("Joined Lobby");
+            _listOfRoomsInfo = new Dictionary<string, RoomInfo>();
+        }
+
+        public override void OnLeftLobby()
+        {
+            print("Lobby left");
         }
 
         public override void OnJoinedRoom()
@@ -59,17 +72,16 @@ namespace Assets.Scripts.MatchMaker
             //OnPlayerEnteredRoom invokes on other clients
             print("Intered room.");
 
+
             if (PhotonNetwork.CurrentRoom.PlayerCount == _maxPlayersPerRoom)
             {
-                if (PhotonNetwork.IsMasterClient)
-                {
-                    PhotonNetwork.LoadLevel(UtilsConst.Battle);
-                }
+                PhotonView.Get(this).RPC("RaisePlayersGatheredEvent", RpcTarget.All);
             }
         }
 
         public override void OnRoomListUpdate(List<RoomInfo> roomList)
         {
+
             UpdateCachedRoomList(roomList);
 
             if (_listOfRoomsInfo != null && _listOfRoomsInfo.Count != 0)
@@ -83,14 +95,14 @@ namespace Assets.Scripts.MatchMaker
         #endregion
 
         #region Private Methods
-        private void MatchPlayers(PlayerSettings playerSettings, List<RoomInfo> rooms)
+        private void MatchPlayers(PlayerSettings playerSettings, Dictionary<string, RoomInfo> roomsInfoList)
         {
 
             for (int t = _roomSearchDepth - 1; t >= 0; t--)
             {
-                for (int i = rooms.Count - 1; i >= 0; i--)
+                foreach (var value in roomsInfoList.Values)
                 {
-                    var room = rooms[i];
+                    var room = value;
 
                     if (CheckRoomConnectionConditions(room, playerSettings))
                     {
@@ -108,21 +120,14 @@ namespace Assets.Scripts.MatchMaker
 
         private void UpdateCachedRoomList(List<RoomInfo> roomList)
         {
-            //rewrite
-            //method return List<RoomInfo>
-            //research how room list behaves
-            //when left or enter room
-
-            _listOfRoomsInfo = roomList;
-
             for (int i = roomList.Count - 1; i >= 0; i--)
             {
                 RoomInfo info = roomList[i];
 
                 if (!info.RemovedFromList)
-                    _listOfRoomsInfo[i] = info;
+                    _listOfRoomsInfo.Add(info.Name, info);
                 else
-                    _listOfRoomsInfo.Remove(info);
+                    _listOfRoomsInfo.Remove(info.Name);
             }
         }
 
@@ -163,6 +168,7 @@ namespace Assets.Scripts.MatchMaker
                                         || (decreasedMMR >= cachedLowerBound
                                         && decreasedMMR <= cachedUpperBound);
         }
+      
         #endregion
     }
 }
