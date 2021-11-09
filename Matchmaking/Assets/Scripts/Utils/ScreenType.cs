@@ -5,6 +5,7 @@ namespace Assets.Scripts.Utils
         MainMenu,
         Leaderboard,
         Options,
-        Search
+        Search,
+        Battle
     }
 }

@@ -12,7 +12,7 @@ namespace Assets.Scripts.MatchMaker
     public class MatchMaker : MonoBehaviourPunCallbacks
     {
 
-        #region Exposed in Inspector Fields
+        #region EXPOSED IN INSPECTOR
         [SerializeField] private byte _maxPlayersPerRoom;
         [SerializeField] private int _initialMMR;
 
@@ -20,16 +20,16 @@ namespace Assets.Scripts.MatchMaker
         [SerializeField] private int _roomSearchDepth;
         #endregion
 
-        #region Private Fields
+        #region PRIVATE FIELDS
         private PlayerSettings _settings;
         private Hashtable _customRoomProperties;
         private Dictionary<string, RoomInfo> _listOfRoomsInfo;
         #endregion
 
-        #region MONOBEH Callbacks
+        #region MONOBEH CALLBACKS
         #endregion
 
-        #region PUN Callbacks
+        #region PUN CALLBACKS
         public override void OnConnectedToMaster()
         {
             _settings = new PlayerSettings
@@ -45,6 +45,11 @@ namespace Assets.Scripts.MatchMaker
             };
 
             PhotonNetwork.JoinLobby();
+        }
+
+        public override void OnDisconnected(DisconnectCause cause)
+        {
+
         }
 
         public override void OnJoinedLobby()
@@ -79,7 +84,7 @@ namespace Assets.Scripts.MatchMaker
 
         #endregion
 
-        #region Public Methods
+        #region PUBLIC METHODS
         private void RoomListUpdated(List<RoomInfo> roomList)
         {
             UpdateCachedRoomList(roomList);
@@ -91,7 +96,7 @@ namespace Assets.Scripts.MatchMaker
         }
         #endregion
 
-        #region Private Methods
+        #region PRIVATE METHODS
         private void MatchPlayers(PlayerSettings playerSettings, Dictionary<string, RoomInfo> roomsInfoList)
         {
 

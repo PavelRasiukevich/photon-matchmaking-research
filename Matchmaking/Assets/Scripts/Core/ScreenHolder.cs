@@ -21,6 +21,8 @@ namespace Assets.Scripts.Core
 
             PopulateDictionary(_dictionary, _children);
             _currentScreen = _dictionary[_default];
+
+            _currentScreen.ShowScreen();
         }
 
         public static BaseScreen SetCurrentScreen(ScreenType screenType)
