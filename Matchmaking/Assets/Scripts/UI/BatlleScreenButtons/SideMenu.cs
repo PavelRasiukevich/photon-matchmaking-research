@@ -7,6 +7,7 @@ namespace Assets.Scripts.UI.BatlleScreenButtons
     {
         #region EXPOSED IN INSPECTOR
 
+        [SerializeField] private Image _statsPanel;
         [SerializeField] Button _open;
         [SerializeField] Button _close;
         [SerializeField] private Animator _animator;
@@ -17,6 +18,11 @@ namespace Assets.Scripts.UI.BatlleScreenButtons
         private readonly int Anim_State = Animator.StringToHash("State");
         #endregion
 
+        #region PROPERTIES
+
+        public bool IsStatsPanelActive;
+
+        #endregion
 
         #region PUBLIC METHODS
         public void OpenSideMenu()
@@ -34,6 +40,9 @@ namespace Assets.Scripts.UI.BatlleScreenButtons
             _open.gameObject.SetActive(true);
             _close.gameObject.SetActive(false);
         }
+
+        public void OpenStatsPanel() => _statsPanel.gameObject.SetActive(IsStatsPanelActive = !IsStatsPanelActive);
+
         #endregion
 
         #region PRIVATE METHODS
