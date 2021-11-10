@@ -6,6 +6,7 @@ namespace Assets.Scripts.Utils
         Leaderboard,
         Options,
         Search,
+        Shop,
         Battle
     }
 }

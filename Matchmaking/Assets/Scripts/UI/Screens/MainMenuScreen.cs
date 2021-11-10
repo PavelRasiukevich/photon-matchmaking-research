@@ -13,6 +13,8 @@ namespace Assets.Scripts.UI.Screens
 
         public void SwitchToOptionsScreen() => ScreenHolder.SetCurrentScreen(ScreenType.Options).ShowScreen();
 
+        public void SwitchToShopScreen() => ScreenHolder.SetCurrentScreen(ScreenType.Shop).ShowScreen();
+
         //public void Exit() => ScreenHolder.SetCurrentScreen(ScreenType.Search).ShowScreen();
     }
 }
