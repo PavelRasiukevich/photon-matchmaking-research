@@ -14,7 +14,7 @@ namespace Assets.Scripts.UI.BatlleScreenButtons
         #endregion
 
         #region PRIVATE
-        private readonly int Anim_State = Animator.StringToHash("IsOpen");
+        private readonly int Anim_State = Animator.StringToHash("State");
         #endregion
 
 
@@ -37,9 +37,9 @@ namespace Assets.Scripts.UI.BatlleScreenButtons
         #endregion
 
         #region PRIVATE METHODS
-        private void PlayOpenAnimation() => _animator.SetBool(Anim_State, true);
+        private void PlayOpenAnimation() => _animator.SetInteger(Anim_State, 1);
 
-        private void PlayCloseAnimation() => _animator.SetBool(Anim_State, false);
+        private void PlayCloseAnimation() => _animator.SetInteger(Anim_State, 2);
         #endregion
     }
 }
