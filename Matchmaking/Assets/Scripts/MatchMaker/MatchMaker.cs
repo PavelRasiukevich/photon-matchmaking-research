@@ -80,12 +80,9 @@ namespace Assets.Scripts.MatchMaker
         {
             UtilsMessages.JoinRoomMessage();
 
-            //get all players in room we joined
-
             var playersInRoom = PhotonNetwork.PlayerListOthers;
 
             _listOfPlayers = new List<Player>();
-
             _listOfPlayers.AddRange(playersInRoom);
             _listOfPlayers.Add(PhotonNetwork.LocalPlayer);
 
@@ -118,14 +115,16 @@ namespace Assets.Scripts.MatchMaker
 
             //TODO выключать кнопку отмены поиска
 
-            for (int i = 0; i < _listOfPlayers.Count; i++)
+            if (PhotonNetwork.IsMasterClient)
             {
-                if (i > 1)
+                for (int i = 0; i < _listOfPlayers.Count; i++)
                 {
-                    photonView.GetComponent<PhotonView>().RPC(nameof(KickPlayerFromRoom), _listOfPlayers[i]);
-                    _listOfPlayers.Remove(_listOfPlayers[i]);
+                    if (i > 1)
+                        photonView.GetComponent<PhotonView>().RPC(nameof(KickPlayerFromRoom), _listOfPlayers[i]);
                 }
             }
+
+            _listOfPlayers.Remove(newPlayer);
 
             PhotonNetwork.LoadLevel(UtilsConst.Battle);
         }
