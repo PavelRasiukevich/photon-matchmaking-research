@@ -123,6 +123,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &223974227 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4030872147898663697, guid: 241905baff487f34d8b50414d329e617, type: 3}
+  m_PrefabInstance: {fileID: 2722462962135364115}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &460329899
 GameObject:
   m_ObjectHideFlags: 0
@@ -471,8 +482,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8358a5aef637e6e449c20175eeefba36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxPlayersPerRoom: 2
-  _initialMMR: 700
+  _textMesh: {fileID: 223974227}
+  _maxPlayersPerRoom: 3
+  _initialMMR: 500
   _roomSearchDepth: 5
 --- !u!4 &790270914
 Transform:
@@ -697,6 +709,10 @@ PrefabInstance:
     - target: {fileID: 2722462962818344556, guid: 241905baff487f34d8b50414d329e617, type: 3}
       propertyPath: m_Name
       value: SearchingScreen
+      objectReference: {fileID: 0}
+    - target: {fileID: 2722462962818344556, guid: 241905baff487f34d8b50414d329e617, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2722462962818344595, guid: 241905baff487f34d8b50414d329e617, type: 3}
       propertyPath: m_RootOrder

@@ -11,6 +11,8 @@ namespace Assets.Scripts.MatchMaker
 {
     public class MatchMaker : MonoBehaviourPunCallbacks
     {
+        [SerializeField] private TMPro.TextMeshProUGUI _textMesh;
+        [SerializeField] private List<Player> _listOfPlayers;
 
         #region EXPOSED IN INSPECTOR
         [SerializeField] private byte _maxPlayersPerRoom;
@@ -32,6 +34,8 @@ namespace Assets.Scripts.MatchMaker
         #region PUN CALLBACKS
         public override void OnConnectedToMaster()
         {
+            UtilsMessages.ConnectedToMasterMessage();
+
             _settings = new PlayerSettings
             {
                 //replace with PlayerPrefs.GetInt()
@@ -47,53 +51,108 @@ namespace Assets.Scripts.MatchMaker
             PhotonNetwork.JoinLobby();
         }
 
-        public override void OnDisconnected(DisconnectCause cause)
-        {
-
-        }
-
         public override void OnJoinedLobby()
         {
-            print("Joined Lobby");
+            UtilsMessages.JoinLobbyMessage();
             _listOfRoomsInfo = new Dictionary<string, RoomInfo>();
         }
 
         public override void OnLeftLobby()
         {
-            print("Left Lobby");
+            UtilsMessages.LeftLobbyMessage();
         }
 
         public override void OnRoomListUpdate(List<RoomInfo> roomList)
         {
-            RoomListUpdated(roomList);
+            UtilsMessages.RoomListUpdateMessage();
+
+            var updatedListOfRooms = UpdateCachedRoomList(roomList);
+
+            if (updatedListOfRooms != null && updatedListOfRooms.Count != 0)
+                MatchPlayers(_settings, updatedListOfRooms);
+            else
+                CreateRoomWithCustomOptions(_maxPlayersPerRoom, _customRoomProperties);
         }
 
+        //OnJoinedRoom invoke on local client
         public override void OnJoinedRoom()
         {
-            //OnJoinedRoom invoke on local client
-            print("Joined room.");
+            UtilsMessages.JoinRoomMessage();
+
+            _listOfPlayers = new List<Player>();
+
+            if (PhotonNetwork.IsMasterClient)
+                _listOfPlayers.Add(PhotonNetwork.LocalPlayer);
         }
 
+        public override void OnLeftRoom()
+        {
+            UtilsMessages.PlayerLeftRoomMessage(1);
+        }
+
+        public override void OnMasterClientSwitched(Player newMasterClient)
+        {
+            ExtendedPlayer pl = (ExtendedPlayer)newMasterClient;
+           
+
+            /*  if (newMasterClient.IsMasterClient)
+              {
+                  foreach (var player in _listOfPlayers)
+                      photonView.GetComponent<PhotonView>().RPC(nameof(KickPlayerFromRoom), player);
+
+                  _listOfPlayers.Clear();
+              }*/
+        }
+
+        //OnPlayerEnteredRoom invokes on other clients
         public override void OnPlayerEnteredRoom(Player newPlayer)
         {
-            //OnPlayerEnteredRoom invokes on other clients
-            print("Intered room.");
+            UtilsMessages.PlayerEnterRoomMessage();
+
+            if (!PhotonNetwork.IsMasterClient) return;
+
+            _listOfPlayers.Add(newPlayer);
+            _textMesh.text = $"Player in list: {_listOfPlayers.Count}";
+
+            if (_listOfPlayers.Count < 3) return;
+
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+            PhotonNetwork.CurrentRoom.IsVisible = false;
+
+            //TODO выключать кнопку отмены поиска
+
+            for (int i = 0; i < _listOfPlayers.Count; i++)
+            {
+                if (i > 1)
+                {
+                    photonView.GetComponent<PhotonView>().RPC(nameof(KickPlayerFromRoom), _listOfPlayers[i]);
+                    _listOfPlayers.Remove(_listOfPlayers[i]);
+                }
+            }
+
+            PhotonNetwork.LoadLevel(UtilsConst.Battle);
+        }
+
+        public override void OnPlayerLeftRoom(Player otherPlayer)
+        {
+            UtilsMessages.PlayerLeftRoomMessage();
+
+            if (!PhotonNetwork.IsMasterClient) return;
+
+            if (_listOfPlayers.Count > 0 && _listOfPlayers != null)
+            {
+                _listOfPlayers.Remove(otherPlayer);
+                _textMesh.text = $"Player in list: {_listOfPlayers.Count}";
+            }
         }
 
         public override void OnJoinRandomFailed(short returnCode, string message) => CreateRoomWithCustomOptions(_maxPlayersPerRoom, _customRoomProperties);
 
-        #endregion
-
-        #region PUBLIC METHODS
-        private void RoomListUpdated(List<RoomInfo> roomList)
+        public override void OnDisconnected(DisconnectCause cause)
         {
-            UpdateCachedRoomList(roomList);
-
-            if (_listOfRoomsInfo != null && _listOfRoomsInfo.Count != 0)
-                MatchPlayers(_settings, _listOfRoomsInfo);
-            else
-                CreateRoomWithCustomOptions(_maxPlayersPerRoom, _customRoomProperties);
+            UtilsMessages.DisconnectedFromMasterMessage();
         }
+
         #endregion
 
         #region PRIVATE METHODS
@@ -120,7 +179,7 @@ namespace Assets.Scripts.MatchMaker
             JoinRandomRoom();
         }
 
-        private void UpdateCachedRoomList(List<RoomInfo> roomList)
+        private Dictionary<string, RoomInfo> UpdateCachedRoomList(List<RoomInfo> roomList)
         {
             for (int i = roomList.Count - 1; i >= 0; i--)
             {
@@ -131,6 +190,8 @@ namespace Assets.Scripts.MatchMaker
                 else
                     _listOfRoomsInfo.Remove(info.Name);
             }
+
+            return _listOfRoomsInfo;
         }
 
         private void CreateRoomWithCustomOptions(byte maxPlayers, Hashtable customOptions = null)
@@ -151,9 +212,16 @@ namespace Assets.Scripts.MatchMaker
 
         private void JoinRandomRoom() => PhotonNetwork.JoinRandomRoom();
 
+        [PunRPC]
+        private void KickPlayerFromRoom()
+        {
+            print("Player Kicked From Room");
+            PhotonNetwork.LeaveRoom();
+        }
+
         private bool CheckRoomConnectionConditions(RoomInfo info, PlayerSettings playerSettings)
         {
-            #region Cache
+            #region Cached
             var customProperties = info.CustomProperties;
             var cachedLowerBound = (int)info.CustomProperties[UtilsConst.LowerBound];
             var cachedUpperBound = (int)info.CustomProperties[UtilsConst.UpperBound];

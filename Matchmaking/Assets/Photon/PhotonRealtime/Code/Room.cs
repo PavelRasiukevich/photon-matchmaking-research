@@ -327,7 +327,6 @@ namespace Photon.Realtime
             this.isOffline = isOffline;
         }
 
-
         /// <summary>Read (received) room option flags into related bool parameters.</summary>
         /// <remarks>This is for internal use. The operation response for join and create room operations is read this way.</remarks>
         /// <param name="roomFlags"></param>

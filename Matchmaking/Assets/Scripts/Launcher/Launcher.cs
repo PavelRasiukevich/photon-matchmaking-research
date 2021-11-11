@@ -7,7 +7,10 @@ namespace Assets.Scripts.Launcher
 
         #region MONOBEH Callbacks
 
-        private void Awake() => PhotonNetwork.AutomaticallySyncScene = true;
+        private void Awake()
+        {
+          //  PhotonNetwork.AutomaticallySyncScene = true;
+        }
 
         #endregion
 
