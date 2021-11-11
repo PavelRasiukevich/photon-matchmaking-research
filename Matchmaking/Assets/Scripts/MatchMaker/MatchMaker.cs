@@ -5,6 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.MatchMaker
@@ -79,37 +80,33 @@ namespace Assets.Scripts.MatchMaker
         {
             UtilsMessages.JoinRoomMessage();
 
+            //get all players in room we joined
+
+            var playersInRoom = PhotonNetwork.PlayerListOthers;
+
             _listOfPlayers = new List<Player>();
 
-            if (PhotonNetwork.IsMasterClient)
-                _listOfPlayers.Add(PhotonNetwork.LocalPlayer);
+            _listOfPlayers.AddRange(playersInRoom);
+            _listOfPlayers.Add(PhotonNetwork.LocalPlayer);
+
+            _textMesh.text = $"Player in list: {_listOfPlayers.Count}";
+
         }
 
         public override void OnLeftRoom()
         {
             UtilsMessages.PlayerLeftRoomMessage(1);
+            _listOfPlayers.Clear();
         }
 
         public override void OnMasterClientSwitched(Player newMasterClient)
         {
-            ExtendedPlayer pl = (ExtendedPlayer)newMasterClient;
-           
-
-            /*  if (newMasterClient.IsMasterClient)
-              {
-                  foreach (var player in _listOfPlayers)
-                      photonView.GetComponent<PhotonView>().RPC(nameof(KickPlayerFromRoom), player);
-
-                  _listOfPlayers.Clear();
-              }*/
         }
 
         //OnPlayerEnteredRoom invokes on other clients
         public override void OnPlayerEnteredRoom(Player newPlayer)
         {
             UtilsMessages.PlayerEnterRoomMessage();
-
-            if (!PhotonNetwork.IsMasterClient) return;
 
             _listOfPlayers.Add(newPlayer);
             _textMesh.text = $"Player in list: {_listOfPlayers.Count}";
@@ -136,8 +133,6 @@ namespace Assets.Scripts.MatchMaker
         public override void OnPlayerLeftRoom(Player otherPlayer)
         {
             UtilsMessages.PlayerLeftRoomMessage();
-
-            if (!PhotonNetwork.IsMasterClient) return;
 
             if (_listOfPlayers.Count > 0 && _listOfPlayers != null)
             {
