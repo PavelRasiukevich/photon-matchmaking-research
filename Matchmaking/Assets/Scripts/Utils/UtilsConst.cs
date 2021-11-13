@@ -10,5 +10,7 @@ namespace Assets.Scripts.Utils
         public const string Battle = "TestBattleField";
 
         public const int Difference = 125;
+
+        public const string UICameraBattle = "UICameraBattle";
     }
 }

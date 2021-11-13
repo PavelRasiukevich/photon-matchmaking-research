@@ -41,7 +41,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 135, y: -25}
+  m_AnchoredPosition: {x: 134.99994, y: -25}
   m_SizeDelta: {x: 185, y: 45}
   m_Pivot: {x: 1, y: 1}
 --- !u!222 &1632915620
@@ -94,9 +94,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77b5c13a1735df04288b60e8ae2530c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _statsPanel: {fileID: 4100653742347162415}
   _open: {fileID: 2788965063894823092}
   _close: {fileID: 2967701752643290270}
   _animator: {fileID: 508819506051563718}
+  IsStatsPanelActive: 0
 --- !u!95 &508819506051563718
 Animator:
   serializedVersion: 3
@@ -986,7 +988,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4539277024928042911
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1027,14 +1029,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.2509804}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1428,7 +1430,7 @@ GameObject:
   - component: {fileID: 6337518576588001979}
   m_Layer: 0
   m_Name: UICameraBattle
-  m_TagString: Untagged
+  m_TagString: UICameraBattle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1821,7 +1823,20 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2626045038684173209}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3419850531762346514}
+        m_TargetAssemblyTypeName: Assets.Scripts.UI.BatlleScreenButtons.SideMenu,
+          Assembly-CSharp
+        m_MethodName: OpenStatsPanel
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &9107403279863246554
 GameObject:
   m_ObjectHideFlags: 0

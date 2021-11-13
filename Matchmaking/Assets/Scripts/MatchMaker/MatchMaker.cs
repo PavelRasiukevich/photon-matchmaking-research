@@ -1,11 +1,10 @@
+using Assets.Scripts.Core;
 using Assets.Scripts.PlayersSettings;
 using Assets.Scripts.Utils;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.MatchMaker
@@ -80,14 +79,12 @@ namespace Assets.Scripts.MatchMaker
         {
             UtilsMessages.JoinRoomMessage();
 
-            var playersInRoom = PhotonNetwork.PlayerListOthers;
-
+            #region Get All Players In Room
             _listOfPlayers = new List<Player>();
-            _listOfPlayers.AddRange(playersInRoom);
-            _listOfPlayers.Add(PhotonNetwork.LocalPlayer);
+            _listOfPlayers.AddRange(PhotonNetwork.PlayerList);
+            #endregion
 
             _textMesh.text = $"Player in list: {_listOfPlayers.Count}";
-
         }
 
         public override void OnLeftRoom()
@@ -108,24 +105,16 @@ namespace Assets.Scripts.MatchMaker
             _listOfPlayers.Add(newPlayer);
             _textMesh.text = $"Player in list: {_listOfPlayers.Count}";
 
-            if (_listOfPlayers.Count < 3) return;
+            if (_listOfPlayers.Count < _maxPlayersPerRoom) return;
 
             PhotonNetwork.CurrentRoom.IsOpen = false;
             PhotonNetwork.CurrentRoom.IsVisible = false;
 
-            //TODO выключать кнопку отмены поиска
 
-            if (PhotonNetwork.IsMasterClient)
-            {
-                for (int i = 0; i < _listOfPlayers.Count; i++)
-                {
-                    if (i > 1)
-                        photonView.GetComponent<PhotonView>().RPC(nameof(KickPlayerFromRoom), _listOfPlayers[i]);
-                }
-            }
 
-            _listOfPlayers.Remove(newPlayer);
+            CheckForExtraPlayers(_listOfPlayers);
 
+            //move to masterClient
             PhotonNetwork.LoadLevel(UtilsConst.Battle);
         }
 
@@ -145,6 +134,7 @@ namespace Assets.Scripts.MatchMaker
         public override void OnDisconnected(DisconnectCause cause)
         {
             UtilsMessages.DisconnectedFromMasterMessage();
+            ScreenHolder.SetCurrentScreen(ScreenType.MainMenu).ShowScreen();
         }
 
         #endregion
@@ -206,12 +196,20 @@ namespace Assets.Scripts.MatchMaker
 
         private void JoinRandomRoom() => PhotonNetwork.JoinRandomRoom();
 
-        [PunRPC]
-        private void KickPlayerFromRoom()
+        private void CheckForExtraPlayers(List<Player> players)
         {
-            print("Player Kicked From Room");
-            PhotonNetwork.LeaveRoom();
+            if (PhotonNetwork.IsMasterClient)
+            {
+                for (int i = 0; i < players.Count; i++)
+                {
+                    if (i > 1)
+                        photonView.GetComponent<PhotonView>().RPC(nameof(KickPlayerFromRoom), players[i]);
+                }
+            }
         }
+
+        [PunRPC]
+        private void KickPlayerFromRoom() => PhotonNetwork.LeaveRoom();
 
         private bool CheckRoomConnectionConditions(RoomInfo info, PlayerSettings playerSettings)
         {

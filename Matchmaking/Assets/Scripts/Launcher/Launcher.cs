@@ -9,7 +9,7 @@ namespace Assets.Scripts.Launcher
 
         private void Awake()
         {
-          //  PhotonNetwork.AutomaticallySyncScene = true;
+            PhotonNetwork.AutomaticallySyncScene = true;
         }
 
         #endregion
