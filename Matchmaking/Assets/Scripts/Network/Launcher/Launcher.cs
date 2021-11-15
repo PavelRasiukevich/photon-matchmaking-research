@@ -1,6 +1,6 @@
 using Photon.Pun;
 
-namespace Assets.Scripts.Launcher
+namespace Assets.Scripts.Network.Launcher
 {
     public class Launcher : MonoBehaviourPunCallbacks
     {
