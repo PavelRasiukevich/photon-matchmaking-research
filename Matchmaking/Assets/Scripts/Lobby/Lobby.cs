@@ -1,24 +1,26 @@
+using Assets.Scripts.Utils;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Assets.Scripts.Lobby
 {
     public class Lobby : MonoBehaviourPunCallbacks
     {
-        [SerializeField] private MatchMaker.MatchMaker _matchMaker;
 
+        private Dictionary<string,RoomInfo> _rooms;
+
+        #region PUN CALLBACKS
         public override void OnJoinedLobby()
         {
-            print("Joined Lobby");
+            MessagesUtilities.JoinLobbyMessage();
+            _rooms = new Dictionary<string, RoomInfo>();
         }
 
         public override void OnLeftLobby()
         {
-            print("Lobby left");
+            MessagesUtilities.LeftLobbyMessage();
         }
-
-        
+        #endregion
     }
 }

@@ -34,7 +34,7 @@ namespace Assets.Scripts.MatchMaker
         #region PUN CALLBACKS
         public override void OnConnectedToMaster()
         {
-            UtilsMessages.ConnectedToMasterMessage();
+            MessagesUtilities.ConnectedToMasterMessage();
 
             _settings = new PlayerSettings
             {
@@ -53,18 +53,18 @@ namespace Assets.Scripts.MatchMaker
 
         public override void OnJoinedLobby()
         {
-            UtilsMessages.JoinLobbyMessage();
+            MessagesUtilities.JoinLobbyMessage();
             _listOfRoomsInfo = new Dictionary<string, RoomInfo>();
         }
 
         public override void OnLeftLobby()
         {
-            UtilsMessages.LeftLobbyMessage();
+            MessagesUtilities.LeftLobbyMessage();
         }
 
         public override void OnRoomListUpdate(List<RoomInfo> roomList)
         {
-            UtilsMessages.RoomListUpdateMessage();
+            MessagesUtilities.RoomListUpdateMessage();
 
             var updatedListOfRooms = UpdateCachedRoomList(roomList);
 
@@ -77,7 +77,7 @@ namespace Assets.Scripts.MatchMaker
         //OnJoinedRoom invoke on local client
         public override void OnJoinedRoom()
         {
-            UtilsMessages.JoinRoomMessage();
+            MessagesUtilities.JoinRoomMessage();
 
             #region Get All Players In Room
             _listOfPlayers = new List<Player>();
@@ -89,7 +89,7 @@ namespace Assets.Scripts.MatchMaker
 
         public override void OnLeftRoom()
         {
-            UtilsMessages.PlayerLeftRoomMessage(1);
+            MessagesUtilities.PlayerLeftRoomMessage(1);
             _listOfPlayers.Clear();
         }
 
@@ -100,7 +100,7 @@ namespace Assets.Scripts.MatchMaker
         //OnPlayerEnteredRoom invokes on other clients
         public override void OnPlayerEnteredRoom(Player newPlayer)
         {
-            UtilsMessages.PlayerEnterRoomMessage();
+            MessagesUtilities.PlayerEnterRoomMessage();
 
             _listOfPlayers.Add(newPlayer);
             _textMesh.text = $"Player in list: {_listOfPlayers.Count}";
@@ -110,8 +110,6 @@ namespace Assets.Scripts.MatchMaker
             PhotonNetwork.CurrentRoom.IsOpen = false;
             PhotonNetwork.CurrentRoom.IsVisible = false;
 
-
-
             CheckForExtraPlayers(_listOfPlayers);
 
             //move to masterClient
@@ -120,7 +118,7 @@ namespace Assets.Scripts.MatchMaker
 
         public override void OnPlayerLeftRoom(Player otherPlayer)
         {
-            UtilsMessages.PlayerLeftRoomMessage();
+            MessagesUtilities.PlayerLeftRoomMessage();
 
             if (_listOfPlayers.Count > 0 && _listOfPlayers != null)
             {
@@ -133,7 +131,7 @@ namespace Assets.Scripts.MatchMaker
 
         public override void OnDisconnected(DisconnectCause cause)
         {
-            UtilsMessages.DisconnectedFromMasterMessage();
+            MessagesUtilities.DisconnectedFromMasterMessage();
             ScreenHolder.SetCurrentScreen(ScreenType.MainMenu).ShowScreen();
         }
 

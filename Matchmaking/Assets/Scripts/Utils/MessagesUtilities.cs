@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.Utils
 {
-    public class UtilsMessages
+    public class MessagesUtilities
     {
         public static void ConnectedToMasterMessage() => Debug.Log("Connected To Master");
         public static void JoinLobbyMessage() => Debug.Log("Lobby Joined");
